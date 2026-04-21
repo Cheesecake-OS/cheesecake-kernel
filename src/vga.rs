@@ -1,6 +1,7 @@
 use core::fmt;
 use spin::{Mutex, Once};
 use volatile::Volatile;
+use x86_64::instructions::port::Port;
 
 const VGA_WIDTH: usize = 80;
 const VGA_HEIGHT: usize = 25;
@@ -52,6 +53,7 @@ struct Buffer {
 
 pub struct Writer {
     col: usize,
+    row: usize,
     color: ColorCode,
     buffer: &'static mut Buffer,
 }
@@ -64,15 +66,14 @@ impl Writer {
                 if self.col >= VGA_WIDTH {
                     self.newline();
                 }
-                let row = VGA_HEIGHT - 1;
-                let col = self.col;
-                self.buffer.chars[row][col].write(ScreenChar {
+                self.buffer.chars[self.row][self.col].write(ScreenChar {
                     ascii: byte,
                     color: self.color,
                 });
                 self.col += 1;
             }
         }
+        self.update_cursor();
     }
 
     pub fn write_str(&mut self, s: &str) {
@@ -84,15 +85,65 @@ impl Writer {
         }
     }
 
+    pub fn write_char(&mut self, c: char) {
+        let mut buf = [0u8; 4];
+        let s = c.encode_utf8(&mut buf);
+        self.write_str(s);
+    }
+
     fn newline(&mut self) {
-        for row in 1..VGA_HEIGHT {
-            for col in 0..VGA_WIDTH {
-                let ch = self.buffer.chars[row][col].read();
-                self.buffer.chars[row - 1][col].write(ch);
+        if self.row < VGA_HEIGHT - 1 {
+            self.row += 1;
+        } else {
+            for row in 1..VGA_HEIGHT {
+                for col in 0..VGA_WIDTH {
+                    let ch = self.buffer.chars[row][col].read();
+                    self.buffer.chars[row - 1][col].write(ch);
+                }
             }
+            self.clear_row(VGA_HEIGHT - 1);
         }
-        self.clear_row(VGA_HEIGHT - 1);
         self.col = 0;
+        self.update_cursor();
+    }
+
+    fn enable_cursor() {
+        unsafe {
+            let mut cmd: Port<u8> = Port::new(0x3D4);
+            let mut data: Port<u8> = Port::new(0x3D5);
+            cmd.write(0x0A);
+            let mut data_read = (data.read() & 0xC0);
+            data.write((data_read) | 0); // cursor start scanline 0
+            cmd.write(0x0B);
+            let mut data_read = (data.read() & 0xE0);
+            data.write((data_read) | 15); // cursor end scanline 15
+        }
+    }
+
+    pub fn clear(&mut self) {
+        for row in 0..VGA_HEIGHT {
+            self.clear_row(row);
+        }
+        self.row = 0;
+        self.col = 0;
+        self.update_cursor();
+    }
+
+
+    pub fn set_color(&mut self, fg: Color, bg: Color) {
+        self.color = ColorCode::new(fg, bg);
+    }
+
+    fn update_cursor(&self) {
+    let pos = self.row * VGA_WIDTH + self.col;
+    unsafe {
+        let mut cmd: Port<u8> = Port::new(0x3D4);
+        let mut data: Port<u8> = Port::new(0x3D5);
+        cmd.write(0x0F);
+        data.write((pos & 0xFF) as u8);
+        cmd.write(0x0E);
+        data.write(((pos >> 8) & 0xFF) as u8);
+    }
     }
 
     fn clear_row(&mut self, row: usize) {
@@ -103,13 +154,6 @@ impl Writer {
         for col in 0..VGA_WIDTH {
             self.buffer.chars[row][col].write(blank);
         }
-    }
-
-    pub fn clear(&mut self) {
-        for row in 0..VGA_HEIGHT {
-            self.clear_row(row);
-        }
-        self.col = 0;
     }
 }
 
@@ -124,8 +168,10 @@ static WRITER_ONCE: Once<Mutex<Writer>> = Once::new();
 
 fn writer() -> &'static Mutex<Writer> {
     WRITER_ONCE.call_once(|| {
+        Writer::enable_cursor(); // <-- call before creating
         Mutex::new(Writer {
             col: 0,
+            row: 0,
             color: ColorCode::new(Color::LightGreen, Color::Black),
             buffer: unsafe { &mut *(VGA_BUFFER as *mut Buffer) },
         })
@@ -141,9 +187,18 @@ pub fn print(s: &str) {
     writer().lock().write_str(s);
 }
 
+pub fn print_char(c: char) {
+    writer().lock().write_char(c);
+}
+
 pub fn clear() {
     writer().lock().clear();
 }
+
+pub fn set_color(fg: Color, bg: Color) {
+    writer().lock().set_color(fg, bg);
+}
+
 
 #[macro_export]
 macro_rules! print {
