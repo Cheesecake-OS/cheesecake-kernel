@@ -1,5 +1,5 @@
-use core::arch::x86_64::__cpuid;
 use crate::serial_println;
+use core::arch::x86_64::__cpuid;
 
 #[derive(Debug)]
 pub struct CpuInfo {
@@ -26,13 +26,17 @@ impl CpuInfo {
 
         let mut brand = [0u8; 48];
         unsafe {
-            let regs = [__cpuid(0x80000002), __cpuid(0x80000003), __cpuid(0x80000004)];
+            let regs = [
+                __cpuid(0x80000002),
+                __cpuid(0x80000003),
+                __cpuid(0x80000004),
+            ];
             for (i, r) in regs.iter().enumerate() {
                 let off = i * 16;
-                brand[off..off+4].copy_from_slice(&r.eax.to_le_bytes());
-                brand[off+4..off+8].copy_from_slice(&r.ebx.to_le_bytes());
-                brand[off+8..off+12].copy_from_slice(&r.ecx.to_le_bytes());
-                brand[off+12..off+16].copy_from_slice(&r.edx.to_le_bytes());
+                brand[off..off + 4].copy_from_slice(&r.eax.to_le_bytes());
+                brand[off + 4..off + 8].copy_from_slice(&r.ebx.to_le_bytes());
+                brand[off + 8..off + 12].copy_from_slice(&r.ecx.to_le_bytes());
+                brand[off + 12..off + 16].copy_from_slice(&r.edx.to_le_bytes());
             }
         }
 
@@ -55,7 +59,15 @@ impl CpuInfo {
             (r.eax & 0xFF) as u8
         };
 
-        CpuInfo { vendor, brand, has_sse, has_sse2, has_avx, has_avx2, physical_address_bits }
+        CpuInfo {
+            vendor,
+            brand,
+            has_sse,
+            has_sse2,
+            has_avx,
+            has_avx2,
+            physical_address_bits,
+        }
     }
 
     pub fn brand_str(&self) -> &str {
@@ -66,7 +78,13 @@ impl CpuInfo {
     pub fn print_info(&self) {
         serial_println!("CPU Vendor : {}", self.vendor);
         serial_println!("CPU Brand  : {}", self.brand_str());
-        serial_println!("SSE={} SSE2={} AVX={} AVX2={}", self.has_sse, self.has_sse2, self.has_avx, self.has_avx2);
+        serial_println!(
+            "SSE={} SSE2={} AVX={} AVX2={}",
+            self.has_sse,
+            self.has_sse2,
+            self.has_avx,
+            self.has_avx2
+        );
         serial_println!("Physical addr bits: {}", self.physical_address_bits);
     }
 }

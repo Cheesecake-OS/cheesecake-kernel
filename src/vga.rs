@@ -11,22 +11,22 @@ const VGA_BUFFER: usize = 0xb8000;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Color {
-    Black      = 0,
-    Blue       = 1,
-    Green      = 2,
-    Cyan       = 3,
-    Red        = 4,
-    Magenta    = 5,
-    Brown      = 6,
-    LightGray  = 7,
-    DarkGray   = 8,
-    LightBlue  = 9,
+    Black = 0,
+    Blue = 1,
+    Green = 2,
+    Cyan = 3,
+    Red = 4,
+    Magenta = 5,
+    Brown = 6,
+    LightGray = 7,
+    DarkGray = 8,
+    LightBlue = 9,
     LightGreen = 10,
-    LightCyan  = 11,
-    LightRed   = 12,
-    Pink       = 13,
-    Yellow     = 14,
-    White      = 15,
+    LightCyan = 11,
+    LightRed = 12,
+    Pink = 13,
+    Yellow = 14,
+    White = 15,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -112,10 +112,10 @@ impl Writer {
             let mut cmd: Port<u8> = Port::new(0x3D4);
             let mut data: Port<u8> = Port::new(0x3D5);
             cmd.write(0x0A);
-            let mut data_read = (data.read() & 0xC0);
+            let mut data_read = data.read() & 0xC0;
             data.write((data_read) | 0); // cursor start scanline 0
             cmd.write(0x0B);
-            let mut data_read = (data.read() & 0xE0);
+            let mut data_read = data.read() & 0xE0;
             data.write((data_read) | 15); // cursor end scanline 15
         }
     }
@@ -129,21 +129,20 @@ impl Writer {
         self.update_cursor();
     }
 
-
     pub fn set_color(&mut self, fg: Color, bg: Color) {
         self.color = ColorCode::new(fg, bg);
     }
 
     fn update_cursor(&self) {
-    let pos = self.row * VGA_WIDTH + self.col;
-    unsafe {
-        let mut cmd: Port<u8> = Port::new(0x3D4);
-        let mut data: Port<u8> = Port::new(0x3D5);
-        cmd.write(0x0F);
-        data.write((pos & 0xFF) as u8);
-        cmd.write(0x0E);
-        data.write(((pos >> 8) & 0xFF) as u8);
-    }
+        let pos = self.row * VGA_WIDTH + self.col;
+        unsafe {
+            let mut cmd: Port<u8> = Port::new(0x3D4);
+            let mut data: Port<u8> = Port::new(0x3D5);
+            cmd.write(0x0F);
+            data.write((pos & 0xFF) as u8);
+            cmd.write(0x0E);
+            data.write(((pos >> 8) & 0xFF) as u8);
+        }
     }
 
     fn clear_row(&mut self, row: usize) {
@@ -198,7 +197,6 @@ pub fn clear() {
 pub fn set_color(fg: Color, bg: Color) {
     writer().lock().set_color(fg, bg);
 }
-
 
 #[macro_export]
 macro_rules! print {

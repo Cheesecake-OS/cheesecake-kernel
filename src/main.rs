@@ -4,15 +4,15 @@
 extern crate alloc;
 
 use bootloader::{entry_point, BootInfo};
-use core::panic::PanicInfo;
 use core::hint::spin_loop;
+use core::panic::PanicInfo;
 
-mod vga;
-mod serial;
 mod cpu;
-mod mm;
 mod input;
 mod kernel;
+mod mm;
+mod serial;
+mod vga;
 
 entry_point!(kernel_main);
 
@@ -37,5 +37,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     serial_println!("KERNEL PANIC: {}", info);
-    loop { x86_64::instructions::hlt(); }
+    loop {
+        x86_64::instructions::hlt();
+    }
 }

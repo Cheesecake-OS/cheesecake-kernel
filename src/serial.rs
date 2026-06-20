@@ -1,6 +1,6 @@
-use uart_16550::SerialPort;
-use spin::{Mutex, Once};
 use core::fmt;
+use spin::{Mutex, Once};
+use uart_16550::SerialPort;
 
 static SERIAL1_ONCE: Once<Mutex<SerialPort>> = Once::new();
 

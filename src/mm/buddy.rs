@@ -1,5 +1,5 @@
-use spin::Mutex;
 use crate::serial_println;
+use spin::Mutex;
 
 const PAGE_SIZE: usize = 4096;
 const MAX_ORDER: usize = 11;
@@ -46,7 +46,9 @@ impl BuddyAllocator {
                 if addr % size == 0 && addr + size <= end {
                     break;
                 }
-                if order == 0 { break; }
+                if order == 0 {
+                    break;
+                }
                 order -= 1;
             }
             let pfn = addr / PAGE_SIZE;
@@ -64,7 +66,9 @@ impl BuddyAllocator {
     }
 
     fn alloc_inner(&self, list: &mut FreeList, order: usize) -> Option<usize> {
-        if order >= MAX_ORDER { return None; }
+        if order >= MAX_ORDER {
+            return None;
+        }
 
         if let Some(pfn) = list.heads[order] {
             let next = list.next[pfn];
@@ -91,7 +95,9 @@ impl BuddyAllocator {
         let mut ord = order;
 
         loop {
-            if ord >= MAX_ORDER - 1 { break; }
+            if ord >= MAX_ORDER - 1 {
+                break;
+            }
 
             let buddy_pfn = pfn ^ (1 << ord); // XOR to find buddy
 
@@ -101,7 +107,6 @@ impl BuddyAllocator {
 
             while let Some(c) = cur {
                 if c == buddy_pfn {
-
                     if let Some(p) = prev {
                         list.next[p] = list.next[c];
                     } else {
@@ -113,10 +118,16 @@ impl BuddyAllocator {
                     break;
                 }
                 prev = cur;
-                cur = if list.next[c] == usize::MAX { None } else { Some(list.next[c]) };
+                cur = if list.next[c] == usize::MAX {
+                    None
+                } else {
+                    Some(list.next[c])
+                };
             }
 
-            if !found { break; }
+            if !found {
+                break;
+            }
 
             pfn = pfn.min(buddy_pfn);
             ord += 1;
@@ -137,7 +148,8 @@ impl BuddyAllocator {
         serial_println!("=== Buddy Allocator Stats ===");
         for ord in 0..MAX_ORDER {
             if list.free_count[ord] > 0 {
-                serial_println!("  order {:2}: {} free blocks ({} KiB each)",
+                serial_println!(
+                    "  order {:2}: {} free blocks ({} KiB each)",
                     ord,
                     list.free_count[ord],
                     (PAGE_SIZE << ord) / 1024
