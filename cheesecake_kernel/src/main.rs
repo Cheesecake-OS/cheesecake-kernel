@@ -34,6 +34,7 @@ fn keyboard_task_entry() -> ! {
 }
 
 fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
+    // Init Start
     serial::init();
     serial_println!("[ OK ] Serial Initialized");
     let phys_offset = boot_info
@@ -48,19 +49,27 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
     vga::clear();
     serial_println!("[ OK ] VGA cleared");
 
+    vga::print_ok("VGA Initialized");
+    vga::print_ok("Keyboard Initialized");
+
     let k = kernel::Kernel::init(boot_info);
-    k.print_banner();
     serial_println!("[ OK ] Kernel Initialized");
+    vga::print_ok("Kernel Initialized");
     input::keyboard::init();
     serial_println!("[ OK ] Keyboard Initialized");
+    vga::print_ok("Keyboard Initialized");
+
+    vga::clear();
+
+    // Init End
+    k.print_banner();
+    serial_println!("Cheesecake Kernel ready.");
+    vga::print("Cheesecake Kernel ready.\n");
 
     {
         let mut sched = crate::tasks::scheduler::SCHEDULER.lock();
         sched.spawn(keyboard_task_entry, 0, phys_offset);
     }
-
-    serial_println!("Cheesecake Kernel ready.");
-    vga::print("Cheesecake Kernel ready.\n");
 
     loop {
         // Yield execution back and forth between the main loop and your task

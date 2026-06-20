@@ -406,11 +406,15 @@ macro_rules! println {
 pub fn print_ok(msg: &str) {
     let mut w = writer().lock();
     let saved_fg = w.fg;
+    w.fg = Color::White;
+    w.write_str("[ ");
     w.fg = Color::LightGreen;
-    w.write_str("[ OK ] ");
-    w.fg = saved_fg;
+    w.write_str("OK");
+    w.fg = Color::White;
+    w.write_str(" ] ");
     w.write_str(msg);
     w.write_str("\n");
+    w.fg = saved_fg;
 }
 
 pub fn print_err(msg: &str) {
@@ -426,9 +430,13 @@ pub fn print_err(msg: &str) {
 pub fn print_info(msg: &str) {
     let mut w = writer().lock();
     let saved_fg = w.fg;
-    w.fg = Color::LightCyan;
-    w.write_str("[ INFO ] ");
-    w.fg = saved_fg;
+    w.fg = Color::White;
+    w.write_str("[ ");
+    w.fg = Color::Yellow;
+    w.write_str("INFO");
+    w.fg = Color::White;
+    w.write_str(" ] ");
     w.write_str(msg);
     w.write_str("\n");
+    w.fg = saved_fg;
 }

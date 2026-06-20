@@ -9,6 +9,7 @@ pub struct CpuInfo {
     pub has_sse2: bool,
     pub has_avx: bool,
     pub has_avx2: bool,
+    pub has_avx512f: bool,
     pub physical_address_bits: u8,
 }
 
@@ -49,9 +50,9 @@ impl CpuInfo {
             )
         };
 
-        let has_avx2 = unsafe {
+        let (has_avx2, has_avx512f) = unsafe {
             let r = __cpuid(7);
-            r.ebx & (1 << 5) != 0
+            (r.ebx & (1 << 5) != 0, r.ebx & (1 << 16) != 0)
         };
 
         let physical_address_bits = unsafe {
@@ -66,6 +67,7 @@ impl CpuInfo {
             has_sse2,
             has_avx,
             has_avx2,
+            has_avx512f,
             physical_address_bits,
         }
     }
@@ -79,11 +81,12 @@ impl CpuInfo {
         serial_println!("CPU Vendor : {}", self.vendor);
         serial_println!("CPU Brand  : {}", self.brand_str());
         serial_println!(
-            "SSE={} SSE2={} AVX={} AVX2={}",
+            "SSE={} SSE2={} AVX={} AVX2={} AVX512F={}",
             self.has_sse,
             self.has_sse2,
             self.has_avx,
-            self.has_avx2
+            self.has_avx2,
+            self.has_avx512f,
         );
         serial_println!("Physical addr bits: {}", self.physical_address_bits);
     }
