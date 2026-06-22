@@ -2,6 +2,7 @@
 
 ## Tasks / Scheduler
 - [ ] Multi-threading groundwork
+- [ ] Multi-threading
 - [ ] User space
 
 ## Storage
