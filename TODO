@@ -1,8 +1,6 @@
-# Cheesecake Kernel — TODO
+# Cheesecake Kernel - TODO
 
 ## Tasks / Scheduler
-- [ ] Test context switching more thoroughly — verify keyboard task runs and switches back correctly
-- [ ] Investigate `old_rsp_ptr`/`new_rsp` unused assignment warnings in `scheduler.rs` (hint at real logic issue)
 - [ ] Multi-threading groundwork
 
 ## Syscalls

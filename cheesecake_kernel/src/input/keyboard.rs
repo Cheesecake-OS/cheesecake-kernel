@@ -55,9 +55,6 @@ impl Keyboard {
             }
             code if code < 0x80 => {
                 let c = scancode_to_char(code, self.shift ^ self.caps);
-                if let Some(ch) = c {
-                    serial_println!("[KEY] '{}'", ch);
-                }
                 c
             }
             _ => None, // key release or unknown

@@ -11,7 +11,7 @@ pub struct Kernel {
 }
 
 impl Kernel {
-    pub fn init(boot_info: &'static BootInfo) -> Self {
+    pub fn init(boot_info: &'static BootInfo, phys_mem_offset: usize) -> Self {
         // Get some info
         let cpu = CpuInfo::collect();
         let ram_mb = mm::usable_ram_mb(&boot_info.memory_regions);
@@ -23,7 +23,7 @@ impl Kernel {
         serial_println!("[ OK ] Memory manager initalized");
 
         // Initialize scheduler
-        tasks::scheduler::SCHEDULER.lock().init();
+        tasks::scheduler::SCHEDULER.lock().init(phys_mem_offset);
         serial_println!("[ OK ] Scheduler initalized");
 
         cpu.print_info();
