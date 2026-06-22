@@ -4,6 +4,10 @@ A custom kernel for the future OS, named Cheesecake OS
 
 ![Static Badge](https://img.shields.io/badge/Made%20with%20rust-grey?logo=rust)
 
+## Building
+
+No build instructions yet.
+
 
 ## Star History
 

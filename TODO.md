@@ -24,3 +24,6 @@
 ## Cleanup
 - [ ] Fix `static_mut_refs` warnings in `cpu.rs` and `heap.rs` before Rust 2024 makes them errors
 - [ ] Remove unused imports and dead fields (`base` in `BuddyAllocator`, `NonZeroUsize` in `task.rs`)
+
+## Readme
+- [ ] Update README.md with building instructions
