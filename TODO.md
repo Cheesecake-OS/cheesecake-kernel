@@ -3,7 +3,7 @@
 ## Tasks / Scheduler
 - [ ] Multi-threading groundwork
 - [ ] Multi-threading
-- [ ] User space
+- [ ] User space implementation
 
 ## Storage
 - [ ] Detect drives (AHCI or virtio-blk under QEMU)
