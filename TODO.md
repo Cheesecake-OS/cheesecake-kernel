@@ -2,11 +2,7 @@
 
 ## Tasks / Scheduler
 - [ ] Multi-threading groundwork
-
-## Syscalls
-- [ ] Design syscall ABI (syscall numbers, calling convention)
-- [ ] `syscall`/`sysret` handler via LSTAR MSR
-- [ ] Basic syscalls: `write`, `exit`, `yield`
+- [ ] User space
 
 ## Storage
 - [ ] Detect drives (AHCI or virtio-blk under QEMU)

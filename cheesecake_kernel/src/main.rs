@@ -10,6 +10,7 @@ mod input;
 mod kernel;
 mod mm;
 mod serial;
+mod syscalls;
 mod tasks;
 mod vga;
 

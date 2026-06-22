@@ -55,6 +55,9 @@ impl Scheduler {
     pub fn ready_count(&self) -> usize {
         self.ready_queue.len()
     }
+    pub fn get_current_task_pid(&self) -> Option<TaskId> {
+        self.current_task.as_ref().map(|t| t.id)
+    }
 }
 
 pub static SCHEDULER: Mutex<Scheduler> = Mutex::new(Scheduler::new());
